@@ -109,6 +109,7 @@ const Myprofile = () => {
     };
     console.log("Saved Settings:", newData);
     createSetting(newData);
+    navigate("/dashboard");
     setShowSettingsModal(false);
   };
 

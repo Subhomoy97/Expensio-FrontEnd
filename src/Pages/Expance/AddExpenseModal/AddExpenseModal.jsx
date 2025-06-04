@@ -110,7 +110,6 @@ const AddExpenseModal = ({ show, onClose, setExpenses }) => {
     }
     resetForm();
     setShowConfirm(false); // Close confirmation modal
-    console.log("Closing AddExpenseModal...");
     onClose(); // Close AddExpenseModal too
   };
 

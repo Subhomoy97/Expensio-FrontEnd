@@ -3,6 +3,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 import Navbar from "../Components/nav/Navbar";
 import Footer from "../Components/Footer";
 
@@ -70,141 +72,179 @@ console.log("allReviewData",allReviewData);
   };
 
 
+  // Reusable fade-up component
+const FadeUpOnView = ({ children, className = "" }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: true });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({ opacity: 1, y: 0, transition: { duration: 0.8 } });
+    }
+  }, [inView, controls]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+
   return (
     <>
       <Navbar />
 
       <section style={{ marginTop: "80px" }}>
-        <div className="container-fluid px-0">
-          <Swiper
-            modules={[Autoplay, Pagination]}
-            autoplay={{ delay: 3000, disableOnInteraction: false }}
-            pagination={{ clickable: true }}
-            loop={true}
-          >
-            <SwiperSlide>
-              <div
-                className="banner-slide position-relative"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.58), rgba(0,0,0,0.5)), url(${bannerImage1})`,
-                }}
-              >
-                <div className="banner-content text-white">
-                  <h1>
-                    Take Control Of Your <br /> Financial Life
-                  </h1>
-                  <p>
-                    Managing your money shouldn’t be complicated. With our
-                    Expense Tracker and Budget Planner, you can record your
-                    daily spending, set monthly limits, and see exactly where
-                    your money goes. Stay organized, avoid overspending, and
-                    make smarter financial decisions with ease.
-                  </p>
-                  <button className="btn main-btn">Get Started</button>
-                </div>
-              </div>
-            </SwiperSlide>
+      <div className="container-fluid px-0">
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          loop={true}
+        >
+          {/* Slide 1 */}
+          <SwiperSlide>
+            <div
+              className="banner-slide position-relative"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.58), rgba(0,0,0,0.5)), url(${bannerImage1})`,
+              }}
+            >
+              <FadeUpOnView className="banner-content text-white fade-up">
+                <h1>
+                  Take Control Of Your <br /> Financial Life
+                </h1>
+                <p>
+                  Managing your money shouldn’t be complicated. With our
+                  Expense Tracker and Budget Planner, you can record your
+                  daily spending, set monthly limits, and see exactly where
+                  your money goes.
+                </p>
+                <button className="btn main-btn">Get Started</button>
+              </FadeUpOnView>
+            </div>
+          </SwiperSlide>
 
-              <SwiperSlide className="banner2-vector">
-                <div
-                  className="banner-slide"
-                  style={{
-                    background: `URL(${Vector})`,
-                    backgroundRepeat: "no-repeat  !important",
-                    backgroundPosition: "center !important",
-                    backgroundSize: "cover",
-                    padding: "60px 0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+          {/* Slide 2 */}
+          <SwiperSlide className="banner2-vector">
+            <div
+              className="banner-slide"
+              style={{
+                background: `url(${Vector})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                padding: "60px 0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div className="container phone-area d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
+                <div className="d-flex phonearea justify-content-center gap-3">
+                  <img
+                    src={phoneLeft}
+                    alt="Phone Left"
+                    style={{
+                      maxWidth: "180px",
+                      height: "400px",
+                      transform: "rotate(-5deg)",
+                    }}
+                  />
+                  <img
+                    src={phoneRight}
+                    alt="Phone Right"
+                    style={{ maxWidth: "200px", height: "400px" }}
+                  />
+                </div>
+                <FadeUpOnView
+                  className="text-center text-lg-start px-3 fade-up"
+                  style={{ maxWidth: "500px" }}
                 >
-                  <div className="container d-flex flex-column flex-lg-row align-items-center justify-content-between gap-2">
-                    {/* Left: Phone Images */}
-                    <div className="d-flex justify-content-center gap-3 flex-wrap">
-                      <img
-                        src={phoneLeft}
-                        alt="Phone Left"
-                        style={{
-                          maxWidth: "150px",
-                          height: "auto",
-                          transform: "rotate(-5deg)",
-                        }}
-                      />
-                      <img
-                        src={phoneRight}
-                        alt="Phone Right"
-                        style={{
-                          maxWidth: "170px",
-                          height: "auto",
-                        }}
-                      />
-                    </div>
-
-                    {/* Right: Text */}
-                    <div className="text-center text-lg-start px-3" style={{ maxWidth: "500px" }}>
-                      <h1 style={{ fontWeight: 700, color: "#2b2b2b", fontSize: "2rem" }} className="d-none d-lg-block">
-                        Take Control Of Your <br /> Financial Life
-                      </h1>
-                      <p style={{ color: "#555", marginTop: "15px", fontSize: "1rem" }} className="d-none d-lg-block">
-                        A simple, clean way to stay on top of your personal spending and budgeting. Track your expenses, monitor trends, and reach your financial goals faster — all in one app.
-                      </p>
-                      <button className="btn main-btn mt-3">Get Started</button>
-                    </div>
-                  </div>
-                </div>
-            </SwiperSlide>
-
-
-            <SwiperSlide>
-              <div
-                className="banner-slide position-relative"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.5)), url(${bannerImage2})`,
-                }}
-              >
-                <div className="pointer-area position-absolute">
-                  <h3 className="pointer-text ">
-                    Act Smart <br /> Today
-                  </h3>
-                </div>
-                <div className="banner-content banner-content2 text-white">
-                  <h1 className="d-flex flex-column align-items-center">
-                    Earn <div>+</div> Manage <div>+</div> Save
-                  </h1>
-                  <button className="btn main-btn">Get Started</button>
-                </div>
-              </div>
-            </SwiperSlide>
-
-            <SwiperSlide>
-              <div
-                className="banner-slide position-relative"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0, 0, 0, 0.71)), url(${bannerImage3})`,
-                }}
-              >
-                <div className="banner-content text-white">
-                  <h1>
+                  <h1
+                    style={{
+                      fontWeight: 700,
+                      color: "#2b2b2b",
+                      fontSize: "2rem",
+                    }}
+                    className="d-none d-lg-block"
+                  >
                     Take Control Of Your <br /> Financial Life
                   </h1>
-                  <p>
-                    Take control of your finances with a tool designed to make
-                    budgeting simple. Whether you're saving for a goal or just
-                    trying to keep your expenses in check, our planner helps you
-                    track every transaction and stay on top of your spending
-                    habits.
+                  <p
+                    style={{
+                      color: "#555",
+                      marginTop: "15px",
+                      fontSize: "1rem",
+                    }}
+                    className="d-none d-lg-block"
+                  >
+                    A simple, clean way to stay on top of your personal
+                    spending and budgeting. Track your expenses, monitor trends,
+                    and reach your financial goals faster — all in one app.
                   </p>
-                  <button className="btn main-btn">Get Started</button>
-                </div>
+                  <button className="btn main-btn mt-3">Get Started</button>
+                </FadeUpOnView>
               </div>
-            </SwiperSlide>
-          </Swiper>
-        </div>
+            </div>
+          </SwiperSlide>
+
+          {/* Slide 3 */}
+          <SwiperSlide>
+            <div
+              className="banner-slide position-relative"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.5)), url(${bannerImage2})`,
+              }}
+            >
+              <div className="pointer-area position-absolute">
+                <h3 className="pointer-text">Act Smart <br /> Today</h3>
+              </div>
+              <FadeUpOnView className="banner-content banner-content2 text-white fade-up">
+                <h1 className="d-flex flex-column align-items-center">
+                  Earn <div>+</div> Manage <div>+</div> Save
+                </h1>
+                <button className="btn main-btn">Get Started</button>
+              </FadeUpOnView>
+            </div>
+          </SwiperSlide>
+
+          {/* Slide 4 */}
+          <SwiperSlide>
+            <div
+              className="banner-slide position-relative"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0, 0, 0, 0.71)), url(${bannerImage3})`,
+              }}
+            >
+              <FadeUpOnView className="banner-content text-white fade-up">
+                <h1>
+                  Take Control Of Your <br /> Financial Life
+                </h1>
+                <p>
+                  Take control of your finances with a tool designed to make
+                  budgeting simple. Whether you're saving for a goal or just
+                  trying to keep your expenses in check, our planner helps you
+                  track every transaction and stay on top of your spending
+                  habits.
+                </p>
+                <button className="btn main-btn">Get Started</button>
+              </FadeUpOnView>
+            </div>
+          </SwiperSlide>
+        </Swiper>
+      </div>
       </section>
 
+
       {/* manage your money */}
-      <section className="py-5 bg-light">
+      <section className="manage-section py-5 bg-light">
         <div className="container">
           <div className="text-center mb-5">
             <h2 className="fw-bold">A Smarter Way To Manage Your Money</h2>
@@ -215,11 +255,11 @@ console.log("allReviewData",allReviewData);
           </div>
 
           <div className="row align-items-center">
-            <div className="col-lg-6  mb-4 mb-lg-0 text-center">
+            <div className="manage-card col-lg-6 mb-4 mb-lg-0 text-center">
               <img
                 src={dashboard}
                 alt="Dashboard"
-                className="img-fluid rounded shadow-custom2 "
+                className="img-fluid rounded shadow-custom2 w-100"
               />
             </div>
 
@@ -317,21 +357,20 @@ console.log("allReviewData",allReviewData);
         </div>
       </section>
 
-      {/* Features section */}
-      <section className="py-5 bg-light">
+     {/* Features section */}
+      <section className=" featured-section py-5 bg-light">
         <div className="container">
           <div className="text-center mb-5">
-            <h2 className="fw-bold">
-              Powerful Features To Elevate Your Expense
-            </h2>
+            <h2 className="fw-bold">Powerful Features To Elevate Your Expense</h2>
             <p className="text-muted">
               All the tools you need to manage your money – smart , simple
             </p>
           </div>
 
           <div className="row g-4">
-            <div className="col-md-6 col-lg-6" >
-              <div className="p-4 bg-white rounded shadow-custom h-100" >
+
+            <div className="col-md-6 col-lg-6">
+              <div className="card featured-card p-4 bg-white rounded shadow-custom h-100">
                 <h5 className="fw-semibold">Expenses</h5>
                 <p className="text-muted">
                   Lorem Ipsum is simply dummy text of the printing and
@@ -346,18 +385,22 @@ console.log("allReviewData",allReviewData);
             </div>
 
             <div className="col-md-6 col-lg-6">
-              <div className="p-4 bg-white rounded shadow-custom h-100">
+              <div className="card featured-card p-4 bg-white rounded shadow-custom h-100">
                 <h5 className="fw-semibold">Budgets</h5>
                 <p className="text-muted">
                   Lorem Ipsum is simply dummy text of the printing and
                   typesetting industry.
                 </p>
-                <img src={budget} alt="Budgets" className="img-fluid shadow-custom2 rounded" />
+                <img
+                  src={budget}
+                  alt="Budgets"
+                  className="img-fluid shadow-custom2 rounded"
+                />
               </div>
             </div>
 
             <div className="col-md-6 col-lg-6">
-              <div className="p-4 bg-white rounded shadow-custom h-100">
+              <div className="card featured-card p-4 bg-white rounded shadow-custom h-100">
                 <h5 className="fw-semibold">Transactions</h5>
                 <p className="text-muted">
                   Lorem Ipsum is simply dummy text of the printing and
@@ -372,7 +415,7 @@ console.log("allReviewData",allReviewData);
             </div>
 
             <div className="col-md-6 col-lg-6">
-              <div className="p-4 bg-white rounded shadow-custom h-100">
+              <div className="card featured-card p-4 bg-white rounded shadow-custom h-100">
                 <h5 className="fw-semibold">Analysis</h5>
                 <p className="text-muted">
                   Lorem Ipsum is simply dummy text of the printing and
@@ -385,9 +428,13 @@ console.log("allReviewData",allReviewData);
                 />
               </div>
             </div>
+
           </div>
         </div>
       </section>
+
+
+
 
       {/* animation section */}
       <div className="expensio-section d-flex align-items-center">
@@ -404,7 +451,7 @@ console.log("allReviewData",allReviewData);
 
 
       {/* price plan section*/}
-      <section>
+      <section className="priceplan-section">
         <div className="container py-5 text-center">
           <h3 className="fw-bold mb-2">Choose Your Right Plan</h3>
           <p className="text-muted mb-4">Find the might plan that fits you</p>
@@ -486,10 +533,10 @@ console.log("allReviewData",allReviewData);
             {/* Popular Plan */}
             <div className="col-lg-4 col-md-6">
               <div className="pricing-card p-4 h-100 position-relative border-primary border-2 shadow">
-                <span className="badge bg-primary position-absolute top-0 start-50 translate-middle px-3 py-1 rounded-pill">
+                <span className="badge bg-primary position-absolute shadow-custom top-0 start-50 translate-middle px-3 py-2 rounded-pill">
                   Popular
                 </span>
-                <h5 className="mt-4">Stater</h5>
+                <h5 className="mt-4">Starter</h5>
                 <p className="text-muted small">
                   Essential features, unbeatable value.
                 </p>
@@ -670,9 +717,9 @@ console.log("allReviewData",allReviewData);
       </section>
 
       {/* App QR Code section */}
-      <section >
+      <section  className="qrcode-section">
         <div className="container my-4" >
-          <div className="p-4 rounded-4 bg-light shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-center" 
+          <div className="p-4 qrcode-area rounded-4 bg-light shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-center" 
             style={{backgroundColor: "#D3E6FF"}}
           >
             {/* Text Content */}
@@ -707,9 +754,9 @@ console.log("allReviewData",allReviewData);
 
       {/* Review Section */}
         <div
-          className="section py-5 mb-5"
+          className="section review-section py-5"
           style={{
-            backgroundColor: "#e6f3ff", 
+            // backgroundColor: "#e6f3ff", 
             position: "relative",
           }}
         >
@@ -766,7 +813,7 @@ console.log("allReviewData",allReviewData);
               {/* Right Content Column */}
               <div className="col-md-5 mt-4 mt-md-0 text-center text-md-start">
                 <h3 className="fw-bold mb-3 text-dark">What Our Users are saying</h3>
-                <p className="text-secondary small mb-4">
+                <p className="text small mb-4">
                   Lorem Ipsum is simply dummy text of the printing and typesetting industry.
                   Lorem Ipsum has been the industry's standard dummy text ever since the
                   1500s, when an unknown printer took a galley of type and scrambled it to

@@ -28,7 +28,7 @@ export const createExpense = async (data) => {
     }
   } catch (error) {
     toast.error(error.message);
-     toast.error(error.response.data.message[0]);
+    toast.error(error.response.data.message[0]);
     console.log("createExpenseError", error);
   }
 };
@@ -56,10 +56,23 @@ export const deleteExpense = async (id) => {
     );
     if (res) {
       console.log("deleteExpense", res);
-      toast.success("Expense deleted successfully");
+      toast.success(res?.data?.message);
     }
   } catch (error) {
     console.log("deleteExpenseError", error);
+    toast.error(error.message);
+  }
+};
+
+export const restoreExpense = async (id) => {
+  try {
+    const res = await axiosInstance.put(Expense_ENDPOINTS.RESTORE_Expense(id));
+    if (res) {
+      console.log("restoreExpense", res);
+      toast.success(res?.data?.message);
+    }
+  } catch (error) {
+    console.log("restoreExpenseError", error);
     toast.error(error.message);
   }
 };

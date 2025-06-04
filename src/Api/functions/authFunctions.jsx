@@ -91,7 +91,7 @@ export const updatePassword = async (data, navigate, setLoading) => {
       console.log(response);
 
       toast.success(response?.data?.message);
-      navigate("/login");
+      navigate("/dashboard");
     }
   } catch (error) {
     toast.error(error?.response?.data?.message);
@@ -127,7 +127,9 @@ export const resetPassword = async (data, navigate, setLoading, token) => {
       data
     );
     toast.success(response.data.message);
-    navigate("/login");
+    setTimeout(() => {
+      window.close();
+    },2000);
   } catch (error) {
     toast.error(error.response?.data?.message || "Something went wrong");
   } finally {

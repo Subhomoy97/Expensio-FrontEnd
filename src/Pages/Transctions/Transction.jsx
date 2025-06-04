@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Form } from "react-bootstrap";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -17,39 +17,39 @@ const Transaction = () => {
   const [visibleTable, setVisibleTable] = useState(10);
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
-  const [showAll, setShowAll] = useState(false);
+  const [mode, setMode] = useState("month"); // "month" or "year"
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [getSetting, setGetSetting] = useState([]);
 
-  const handleVisibleTable = () => {
-    setVisibleTable((prev) => prev + 10);
-  };
+  const handleVisibleTable = () => setVisibleTable((prev) => prev + 10);
 
-  const handlePrevMonth = () => {
-    if (month === 0) {
-      setMonth(11);
+  const handlePrev = () => {
+    if (mode === "month") {
+      if (month === 0) {
+        setMonth(11);
+        setYear((prev) => prev - 1);
+      } else {
+        setMonth((prev) => prev - 1);
+      }
+    } else {
       setYear((prev) => prev - 1);
-    } else {
-      setMonth((prev) => prev - 1);
     }
-    setShowAll(false);
   };
 
-  const handleNextMonth = () => {
-    if (month === 11) {
-      setMonth(0);
+  const handleNext = () => {
+    if (mode === "month") {
+      if (month === 11) {
+        setMonth(0);
+        setYear((prev) => prev + 1);
+      } else {
+        setMonth((prev) => prev + 1);
+      }
+    } else {
       setYear((prev) => prev + 1);
-    } else {
-      setMonth((prev) => prev + 1);
     }
-    setShowAll(false);
-  };
-
-  const handleShowAll = () => {
-    setShowAll(true);
-    setVisibleTable(10);
   };
 
   useEffect(() => {
@@ -64,17 +64,22 @@ const Transaction = () => {
   useEffect(() => {
     let filtered = allData;
 
-    if (!showAll) {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      filtered = filtered.filter((item) => {
+        const date = new Date(item.date);
+        return date >= start && date <= end;
+      });
+    } else if (mode === "year") {
+      filtered = filtered.filter((item) => {
+        const date = new Date(item.date);
+        return date.getFullYear() === year;
+      });
+    } else {
       filtered = filtered.filter((item) => {
         const date = new Date(item.date);
         return date.getMonth() === month && date.getFullYear() === year;
-      });
-    }
-
-    if (selectedDate) {
-      filtered = filtered.filter((item) => {
-        const itemDate = new Date(item.date).toISOString().split("T")[0];
-        return itemDate === selectedDate;
       });
     }
 
@@ -86,7 +91,7 @@ const Transaction = () => {
 
     setFilteredData(filtered);
     setVisibleTable(5);
-  }, [allData, month, year, showAll, searchTerm, selectedDate]);
+  }, [allData, month, year, searchTerm, startDate, endDate, mode]);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
@@ -94,25 +99,29 @@ const Transaction = () => {
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-
     const title = "Expensio";
     const titleWidth = doc.getTextWidth(title);
-    const titleX = (pageWidth - titleWidth) / 2;
+    doc.text(title, (pageWidth - titleWidth) / 2, 15);
 
-    doc.text(title, titleX, 15);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(18);
     doc.text("Transaction Report", 14, 28);
 
     doc.setFontSize(12);
-    doc.text(
-      `Month: ${new Date(year, month).toLocaleString("default", {
+    let rangeText = "";
+
+    if (startDate && endDate) {
+      rangeText = `Range: ${startDate} to ${endDate}`;
+    } else if (mode === "year") {
+      rangeText = `Year: ${year}`;
+    } else {
+      rangeText = `Month: ${new Date(year, month).toLocaleString("default", {
         month: "long",
         year: "numeric",
-      })}`,
-      14,
-      36
-    );
+      })}`;
+    }
+
+    doc.text(rangeText, 14, 36);
 
     const tableColumn = ["Date", "Description", "Category", "Amount"];
     const tableRows = filteredData.map((item) => [
@@ -144,14 +153,14 @@ const Transaction = () => {
               <ProfileAvtar />
             </div>
 
-            {/* Month Navigation */}
+            {/* Month/Year Navigation with Mode Toggle */}
             <div className="d-flex justify-content-center my-3">
               <div
-                className="month-navigate d-flex align-items-center justify-content-between px-4 py-2 "
+                className="d-flex align-items-center justify-content-between px-4 py-2"
                 style={{
                   backgroundColor: "#E3E9F1",
                   borderRadius: "10px",
-                  width: "55%",
+                  width: "60%",
                   border: "none",
                   boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
                 }}
@@ -160,81 +169,121 @@ const Transaction = () => {
                   variant="link"
                   style={{ color: "#333", textDecoration: "none" }}
                   className="p-0"
-                  onClick={handlePrevMonth}
+                  onClick={handlePrev}
                 >
                   <FaChevronLeft />
                 </Button>
                 <span style={{ fontWeight: "600" }}>
-                  {new Date(year, month).toLocaleString("default", {
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {mode === "month"
+                    ? new Date(year, month).toLocaleString("default", {
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : year}
                 </span>
                 <Button
                   variant="link"
                   style={{ color: "#333", textDecoration: "none" }}
                   className="p-0"
-                  onClick={handleNextMonth}
+                  onClick={handleNext}
                 >
                   <FaChevronRight />
                 </Button>
+
+                <Form.Select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                  style={{
+                    width: "120px",
+                    borderRadius: "8px",
+                    marginLeft: "1rem",
+                    backgroundColor: "#fff",
+                  }}
+                >
+                  <option value="month">Month</option>
+                  <option value="year">Year</option>
+                </Form.Select>
               </div>
             </div>
 
-            {/* Search and Date Input */}
-            <div className="d-flex justify-content-between my-3">
-              <div className="input-date">
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  style={{
-                    borderRadius: "10px",
-                    padding: "10px",
-                    boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
-                    backgroundColor: "#F4F1F6",
-                  }}
-                />
-              </div>
-              <div
-                className="position-relative transction-input"
-                style={{ width: "30%" }}
-              >
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="form-control pe-5"
-                  style={{
-                    borderRadius: "10px",
-                    padding: "10px",
-                    boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
-                    backgroundColor: "#F4F1F6",
-                  }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <i
-                  className="fas fa-search position-absolute"
-                  style={{
-                    right: "15px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "black",
-                    pointerEvents: "none",
-                    cursor: "pointer",
-                  }}
-                ></i>
-              </div>
-            </div>
-
+            {/* Date Range Filter */}
             <div
-              className="transcition-area rounded"
-              style={{ background: "#f8f9fa" }}
+              className="p-3 rounded mb-4"
+              style={{
+                backgroundColor: "#E3E9F1",
+                boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+              }}
             >
-              <Table
-                hover
-                className="transcition-table mb-0 shadow-custom rounded"
-              >
+              <h5 className="mb-3 fw-bold text-center">
+                Select Date Range: From – To
+              </h5>
+              <div className="d-flex flex-wrap justify-content-center align-items-center gap-3">
+                <div>
+                  <label htmlFor="start-date" className="form-label fw-semibold mb-1">
+                    From:
+                  </label>
+                  <input
+                    id="start-date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="form-control"
+                    style={{
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fff",
+                      minWidth: "180px",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="end-date" className="form-label fw-semibold mb-1">
+                    To:
+                  </label>
+                  <input
+                    id="end-date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="form-control"
+                    style={{
+                      borderRadius: "8px",
+                      padding: "10px",
+                      backgroundColor: "#fff",
+                      minWidth: "180px",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="form-label d-block invisible">Reset</label>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                    }}
+                  >
+                    Reset Filter
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Info */}
+            {(startDate && endDate) && (
+              <div className="text-center mb-2 fw-semibold">
+                Showing Transactions from <u>{startDate}</u> to <u>{endDate}</u>
+              </div>
+            )}
+            {mode === "year" && !startDate && !endDate && (
+              <div className="text-center mb-2 fw-semibold">
+                Showing Transactions of Year <u>{year}</u>
+              </div>
+            )}
+
+            {/* Table */}
+            <div className="transcition-area rounded" style={{ background: "#f8f9fa" }}>
+              <Table hover className="transcition-table mb-0 shadow-custom rounded">
                 <thead style={{ background: "#CFDBE9" }}>
                   <tr>
                     <th>Date</th>
@@ -252,20 +301,12 @@ const Transaction = () => {
                     </tr>
                   ) : (
                     filteredData.slice(0, visibleTable).map((item, index) => (
-                      <tr
-                        key={index}
-                        style={{ borderTop: "1px dashed #dee2e6" }}
-                      >
-                        <td>
-                          {new Date(item.date).toISOString().split("T")[0]}
-                        </td>
+                      <tr key={index} style={{ borderTop: "1px dashed #dee2e6" }}>
+                        <td>{new Date(item.date).toISOString().split("T")[0]}</td>
                         <td>{item.note}</td>
                         <td>{item.categoryId?.name}</td>
                         <td>
-                          {formatCurrency(
-                            item.amount,
-                            getSetting.data.currency
-                          )}
+                          {formatCurrency(item.amount, getSetting.data.currency)}
                         </td>
                       </tr>
                     ))
@@ -291,20 +332,15 @@ const Transaction = () => {
               </Table>
             </div>
 
-            {/* Download PDF Button */}
+            {/* Download PDF */}
             <div className="text-end px-3 pb-3 mt-2">
-              <Button
-                variant="dark"
-                className="main-btn"
-                onClick={handleDownloadPDF}
-              >
+              <Button variant="dark" className="main-btn" onClick={handleDownloadPDF}>
                 Download PDF
               </Button>
             </div>
           </div>
         </section>
       )}
-      {/* Footer */}
       <footer id="expensio-footer" className="bg-dark text-white mp-3">
         <div className="container text-center">
           <hr style={{ borderTop: "2px solid white" }} />

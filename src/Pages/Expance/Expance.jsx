@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import Layout from "../../Layout/Layout";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaUndo } from "react-icons/fa";
 import ProfileAvtar from "../../Components/ProfileAvtar";
 import AddExpenseModal from "../Expance/AddExpenseModal/AddExpenseModal";
 import EditExpenseModal from "../Expance/EditExpenseModal/EditExpenseModal";
@@ -10,6 +10,7 @@ import ConfirmDeleteModal from "../../Components/ConfirmDeleteModal";
 import {
   deleteExpense,
   getAllExpense,
+  restoreExpense,
 } from "../../Api/functions/expencseFunctions";
 import Loader from "../../Components/Loader";
 import { getAllSetting } from "../../Api/functions/settingFunctions";
@@ -29,21 +30,9 @@ const Expense = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState(null);
   const [getSetting, setGetSetting] = useState([]);
-  // Pagination states
+
   const [currentPage, setCurrentPage] = useState(1);
   const expensesPerPage = 5;
-
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      setLoading(true);
-      await getAllExpense((data) => {
-        setExpenses(data);
-        setLoading(false);
-      });
-    };
-    fetchExpenses();
-    getAllSetting(setGetSetting);
-  }, []);
 
   const handleEditClick = (expense, id) => {
     setSelectID(id);
@@ -58,17 +47,34 @@ const Expense = () => {
 
   const confirmDelete = async () => {
     await deleteExpense(expenseToDelete);
-    setExpenses((prev) => prev.filter((exp) => exp._id !== expenseToDelete));
+    const updatedExpenses = await getAllExpense();
+    setExpenses(updatedExpenses);
     setShowDeleteModal(false);
     setExpenseToDelete(null);
   };
 
-  // Filter expenses by search query
+  const handleRestoreClick = async (id) => {
+    await restoreExpense(id);
+    const updatedExpenses = await getAllExpense();
+    setExpenses(updatedExpenses);
+  };
+
+    useEffect(() => {
+    const fetchExpenses = async () => {
+      setLoading(true);
+      await getAllExpense((data) => {
+        setExpenses(data);
+        setLoading(false);
+      });
+    };
+    fetchExpenses();
+    getAllSetting(setGetSetting);
+  }, []);
+  
   const filteredExpenses = expenses.filter((expense) =>
     expense.note.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic: calculate current expenses to show
   const indexOfLastExpense = currentPage * expensesPerPage;
   const indexOfFirstExpense = indexOfLastExpense - expensesPerPage;
   const currentExpenses = filteredExpenses.slice(
@@ -78,7 +84,6 @@ const Expense = () => {
 
   const totalPages = Math.ceil(filteredExpenses.length / expensesPerPage);
 
-  // Pagination handlers
   const goToNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
@@ -87,17 +92,17 @@ const Expense = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
-  // Reset to page 1 when search query changes or expenses change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, expenses]);
 
-  // Category data for Pie chart
   const categoryMap = {};
   expenses.forEach((exp) => {
-    const categoryName = exp.categoryId?.name || "Unknown";
-    const amount = parseFloat(exp.amount);
-    categoryMap[categoryName] = (categoryMap[categoryName] || 0) + amount;
+    if (!exp.isDeleted) {
+      const categoryName = exp.categoryId?.name || "Unknown";
+      const amount = parseFloat(exp.amount);
+      categoryMap[categoryName] = (categoryMap[categoryName] || 0) + amount;
+    }
   });
 
   const categories = Object.keys(categoryMap);
@@ -135,24 +140,23 @@ const Expense = () => {
       {loading ? (
         <Loader />
       ) : (
-      <section className="expance-section py-4">
-        <div className="container-fluid">
-          <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
-            <h2 className="fw-bold mb-2 mb-md-0">Expense</h2>
-            <ProfileAvtar />
-          </div>
+        <section className="expance-section py-4">
+          <div className="container-fluid">
+            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
+              <h2 className="fw-bold mb-2 mb-md-0">Expense</h2>
+              <ProfileAvtar />
+            </div>
 
-          <div className="mb-4 d-flex justify-content-end">
-            <button
-              className="btn fw-semibold main-btn shadow-custom"
-              style={{ backgroundColor: "#0164ab", color: "#fff" }}
-              onClick={() => setShowAddModal(true)}
-            >
-              + Add Expense
-            </button>
-          </div>
+            <div className="mb-4 d-flex justify-content-end">
+              <button
+                className="btn fw-semibold main-btn shadow-custom"
+                style={{ backgroundColor: "#0164ab", color: "#fff" }}
+                onClick={() => setShowAddModal(true)}
+              >
+                + Add Expense
+              </button>
+            </div>
 
-          
             <div className="row g-4">
               <div className="col-12 col-lg-7">
                 <div
@@ -208,19 +212,28 @@ const Expense = () => {
                             </tr>
                           ) : (
                             currentExpenses.map((expense) => (
-                              <tr key={expense._id}>
+                              <tr
+                                key={expense._id}
+                                className={
+                                  expense.isDeleted ? "text-muted" : ""
+                                }
+                                style={
+                                  expense.isDeleted ? { opacity: 0.5 } : {}
+                                }
+                              >
                                 <td>{expense.note}</td>
                                 <td>
-                                  {" "}
                                   {formatCurrency(
                                     expense.amount,
-                                    getSetting.data.currency
-                                  )}{" "}
+                                    getSetting.data?.currency
+                                  )}
                                 </td>
                                 <td>
-                                  {new Date(expense.date)
-                                    .toISOString()
-                                    .split("T")[0]}
+                                  {
+                                    new Date(expense.date)
+                                      .toISOString()
+                                      .split("T")[0]
+                                  }
                                 </td>
                                 <td>
                                   {expense.categoryId == null
@@ -228,24 +241,35 @@ const Expense = () => {
                                     : expense.categoryId?.name}
                                 </td>
                                 <td className="text-center">
-                                  <div className="d-flex justify-content-center gap-2">
+                                  {expense.isDeleted ? (
                                     <button
-                                      className="btn btn-outline-primary btn-sm"
+                                      className="btn btn-outline-success btn-sm"
                                       onClick={() =>
-                                        handleEditClick(expense, expense._id)
+                                        handleRestoreClick(expense._id)
                                       }
                                     >
-                                      <FaEdit />
+                                      <FaUndo /> Restore
                                     </button>
-                                    <button
-                                      className="btn btn-outline-danger btn-sm"
-                                      onClick={() =>
-                                        handleDeleteClick(expense._id)
-                                      }
-                                    >
-                                      <FaTrash />
-                                    </button>
-                                  </div>
+                                  ) : (
+                                    <div className="d-flex justify-content-center gap-2">
+                                      <button
+                                        className="btn btn-outline-primary btn-sm"
+                                        onClick={() =>
+                                          handleEditClick(expense, expense._id)
+                                        }
+                                      >
+                                        <FaEdit />
+                                      </button>
+                                      <button
+                                        className="btn btn-outline-danger btn-sm"
+                                        onClick={() =>
+                                          handleDeleteClick(expense._id)
+                                        }
+                                      >
+                                        <FaTrash />
+                                      </button>
+                                    </div>
+                                  )}
                                 </td>
                               </tr>
                             ))
@@ -254,7 +278,6 @@ const Expense = () => {
                       </table>
                     </div>
 
-                    {/* Pagination controls */}
                     {filteredExpenses.length > expensesPerPage && (
                       <div className="d-flex justify-content-center align-items-center mt-3 gap-3">
                         <button
@@ -296,35 +319,36 @@ const Expense = () => {
                 </div>
               </div>
             </div>
-          
 
-          <AddExpenseModal
-            show={showAddModal}
-            onClose={() => setShowAddModal(false)}
-            setExpenses={setExpenses}
-          />
-          <EditExpenseModal
-            show={showEditModal}
-            onClose={() => setShowEditModal(false)}
-            expense={editData}
-            selectID={selectID}
-            setExpenses={setExpenses}
-          />
-          <ConfirmDeleteModal
-            show={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={confirmDelete}
-          />
-        </div>
-      </section>
+            <AddExpenseModal
+              show={showAddModal}
+              onClose={() => setShowAddModal(false)}
+              setExpenses={setExpenses}
+            />
+            <EditExpenseModal
+              show={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              expense={editData}
+              selectID={selectID}
+              setExpenses={setExpenses}
+            />
+            <ConfirmDeleteModal
+              show={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              onConfirm={confirmDelete}
+            />
+          </div>
+        </section>
       )}
-      {/* Footer */}
       <footer id="expensio-footer" className="bg-dark text-white pt-3">
         <div className="container text-center">
           <hr style={{ borderTop: "2px solid white" }} />
           <p>
             Use of this website constitutes acceptance of the site{" "}
-            <Link to="/terms-conditions" className="text-primary text-decoration-underline fw-semibold">
+            <Link
+              to="/terms-conditions"
+              className="text-primary text-decoration-underline fw-semibold"
+            >
               Terms of Service
             </Link>
           </p>

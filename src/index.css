@@ -486,6 +486,24 @@ section{
   .pointer-text {
     font-size: 1rem;
   }
+
+    .phone-area .fade-up button{
+      display: none !important;
+    }
+}
+
+@media (max-width: 500px) {
+  .phone-area{
+    .phonearea{
+      gap: 1 !important;
+    }
+    img{
+      height: 320px !important;
+    }
+    button{
+      display: none !important;
+    }
+  }
 }
 
 /* smart way */
@@ -536,7 +554,24 @@ section{
 }
 
 
+/* manage price */
 
+
+
+/* features section */
+
+
+.featured-section .featured-card:hover{
+  background-color: #0056b3 !important;
+  transition: all 1.3s ease !important;
+  cursor: pointer;
+  h5{
+    color: white !important;
+  }
+  p{
+    color: white !important;
+  }
+}
 
 
 
@@ -582,6 +617,26 @@ section{
   }
   100% {
     transform: translateX(0%);
+  }
+}
+
+/* pricing plan */
+
+.priceplan-section .pricing-card:hover{
+  background-color: #0d6efd !important;
+  color: white !important;
+  transition: all 1.3s ease;
+  cursor: pointer;
+  span,
+  p{
+    color: white !important;
+  }
+
+  button{
+    border: 1px solid white !important;
+  }
+  button:active{
+    transform: scale(0.7);
   }
 }
 
@@ -668,13 +723,24 @@ ul li {
 
 /* qr code */
 
-.bg-light {
-  background-color: #f4f5ff !important;
+.qrcode-area {
+  background: linear-gradient(#dceefffb, #dceeffbd), url(./assets/img/homeimg/review-banner.jpg);
+  background-repeat: no-repeat !important;
+  background-size: cover;
+  margin-bottom: 50px !important;
+}
+
+.qrcode-section{
+  
 }
 
 /* review section */
-.bg-light-blue {
-  background-color: #dceeff;
+.review-section{
+  background-image: linear-gradient(#dceefffb, #dceeff69), url(./assets/img/homeimg/review-banner2.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* padding: 30px 0 !important; */
 }
 
 .review-swiper{
@@ -693,6 +759,18 @@ ul li {
   opacity: 1;
   filter: blur(0);
   transform: scale(1);
+}
+
+@media (max-width: 991px) {
+  .review-swiper{
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .review-swiper{
+    height: 300px !important;
+  }
 }
 
 

@@ -5,6 +5,7 @@ const Expense_ENDPOINTS = {
   UPDATE_Expense: (id)=> `${baseURL}/api/update-expense/${id}`,
   GET_Expense: `${baseURL}/api/get-expenses`,
   DELETE_Expense:(id)=> `${baseURL}/api/delete-expense/${id}`,
+  RESTORE_Expense:(id)=> `${baseURL}/api/restore-expense/${id}`,
 };
 
 export default Expense_ENDPOINTS;

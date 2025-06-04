@@ -62,7 +62,7 @@ function Navbar() {
         {/* Buttons */}
         <div className={`${navCss.Nav_btns} d-flex d- align-items-center`}>
           <Link to={authCookie ? "/dashboard" : "/login"}>
-            <button className="nav-btn d-sm-inline-flex">
+            <button className="nav-btn d-sm-inline-flex ">
               {authCookie ? "Dashboard" : "Get Started"}{" "}
               <i className="ri-instance-line ms-0"></i>
             </button>
@@ -70,7 +70,7 @@ function Navbar() {
 
           {/* Mobile Menu Icon */}
           <i
-            className={`fas fa-bars d-inline-flex d-xl-none ${navCss.bars}`}
+            className={`fas fa-bars rounded rounded-pill d-inline-flex d-xl-none ${navCss.bars}`}
             id={`${navCss.bars}`}
             onClick={MenuHandler}
           ></i>

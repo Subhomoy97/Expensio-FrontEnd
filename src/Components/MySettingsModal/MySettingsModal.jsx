@@ -64,7 +64,7 @@ const MySettingsModal = ({ show, onHide, settings, onChange, onSave }) => {
             <Button variant="secondary" onClick={onHide}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={onSave} href="/profile">
+            <Button variant="primary" onClick={onSave}>
               Save
             </Button>
           </div>

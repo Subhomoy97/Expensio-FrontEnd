@@ -1,8 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// let adminUrl = "https://expensio-nkvc.onrender.com";
-let adminUrl="http://localhost:3010";
+let adminUrl = "https://expensio-nkvc.onrender.com";
+// let adminUrl="http://localhost:3010";
 
 export const baseURL = adminUrl;
 
