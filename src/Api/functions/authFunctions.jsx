@@ -129,7 +129,7 @@ export const resetPassword = async (data, navigate, setLoading, token) => {
     toast.success(response.data.message);
     setTimeout(() => {
       window.close();
-    },2000);
+    },3000);
   } catch (error) {
     toast.error(error.response?.data?.message || "Something went wrong");
   } finally {

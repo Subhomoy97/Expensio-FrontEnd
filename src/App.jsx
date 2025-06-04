@@ -14,7 +14,7 @@ import Budget from "./Pages/Budget/Budget";
 import Expance from "./Pages/Expance/Expance";
 import Categories from "./Pages/Categories/Categories";
 import Myprofile from "./Pages/Profile/Myprofile/Myprofile";
-import EditProfile from "./Pages/Profile/Editprofile/Editprofile";
+import Editprofile from "./Pages/Profile/Editprofile/Editprofile";
 import Analysis from "./Pages/Analysis/Analysis";
 import CreateProfile from "./Pages/Profile/CreateProfile/CreateProfile";
 import About from "./Pages/About";
@@ -48,7 +48,7 @@ function App() {
     { path: "/categories", element: <Categories /> },
     { path: "/profile", element: <Myprofile /> },
     { path: "/create-profile", element: <CreateProfile /> },
-    { path: "/edit-profile", element: <EditProfile /> },
+    { path: "/edit-profile", element: <Editprofile /> },
   ];
 
   return (
