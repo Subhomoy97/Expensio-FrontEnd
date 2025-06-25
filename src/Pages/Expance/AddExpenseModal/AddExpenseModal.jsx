@@ -18,7 +18,6 @@ const AddExpenseModal = ({ show, onClose, setExpenses }) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
-
   const [showConfirm, setShowConfirm] = useState(false);
   const [exceededLimitType, setExceededLimitType] = useState("");
   const [pendingExpense, setPendingExpense] = useState(null);
@@ -98,7 +97,12 @@ const AddExpenseModal = ({ show, onClose, setExpenses }) => {
     }
 
     await createExpense(newExpense);
-    await getAllExpense(setExpenses);
+    const fetchExpenses = async () => {
+          await getAllExpense((data) => {
+            setExpenses(data);
+          });
+        };
+        fetchExpenses();
     resetForm();
     onClose(); // Close the AddExpenseModal
   };
@@ -106,7 +110,12 @@ const AddExpenseModal = ({ show, onClose, setExpenses }) => {
   const confirmExceededExpense = async () => {
     if (pendingExpense) {
       await createExpense(pendingExpense);
-      await getAllExpense(setExpenses);
+      const fetchExpenses = async () => {
+          await getAllExpense((data) => {
+            setExpenses(data);
+          });
+        };
+        fetchExpenses();
     }
     resetForm();
     setShowConfirm(false); // Close confirmation modal

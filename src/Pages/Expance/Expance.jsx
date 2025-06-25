@@ -47,16 +47,28 @@ const Expense = () => {
 
   const confirmDelete = async () => {
     await deleteExpense(expenseToDelete);
-    const updatedExpenses = await getAllExpense();
-    setExpenses(updatedExpenses);
+    const fetchExpenses = async () => {
+      setLoading(true);
+      await getAllExpense((data) => {
+        setExpenses(data);
+        setLoading(false);
+      });
+    };
+    fetchExpenses();
     setShowDeleteModal(false);
     setExpenseToDelete(null);
   };
 
   const handleRestoreClick = async (id) => {
     await restoreExpense(id);
-    const updatedExpenses = await getAllExpense();
-    setExpenses(updatedExpenses);
+    const fetchExpenses = async () => {
+      setLoading(true);
+      await getAllExpense((data) => {
+        setExpenses(data);
+        setLoading(false);
+      });
+    };
+    fetchExpenses();
   };
 
     useEffect(() => {
